@@ -5,19 +5,17 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
+from threading import Thread
 
 app = Flask(__name__)
 
 # Define the directory path of app.py
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DOWNLOAD_DIR = os.path.join(BASE_DIR, "downloads")
+last_image_path = None
 
-@app.route('/')
-def hello_world():
-    return 'Hello, World!'
-
-@app.route('/download_image', methods=['GET'])
 def download_image():
+    global last_image_path
     try:
         # Ensure that the download directory exists
         os.makedirs(DOWNLOAD_DIR, exist_ok=True)
@@ -74,20 +72,30 @@ def download_image():
             sorted_image_files = sorted(image_files)
 
             # Get the file name of the downloaded image
-            downloaded_image_filename = os.path.join(DOWNLOAD_DIR, sorted_image_files[0])
+            last_image_path = os.path.join(DOWNLOAD_DIR, sorted_image_files[-1])
 
-            # Close the browser
-            driver.quit()
-
-            # Return the downloaded image directly
-            return send_file(downloaded_image_filename, mimetype='image/png', as_attachment=True)
-        else:
-            # Close the browser
-            driver.quit()
-
-            return jsonify({'error': 'No image files downloaded.'}), 404
+        # Close the browser
+        driver.quit()
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        print("Error downloading image:", e)
+
+@app.route('/')
+def hello_world():
+    return 'Hello, World!'
+
+@app.route('/download_image', methods=['GET'])
+def start_download_image():
+    # Start the download process in a separate thread
+    Thread(target=download_image).start()
+    return jsonify({'message': 'Image download started.'}), 200
+
+@app.route('/last_image', methods=['GET'])
+def get_last_image():
+    global last_image_path
+    if last_image_path:
+        return send_file(last_image_path, mimetype='image/png', as_attachment=True)
+    else:
+        return jsonify({'error': 'No image available.'}), 404
 
 if __name__ == '__main__':
     app.run()
