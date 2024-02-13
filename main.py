@@ -24,6 +24,7 @@ def download_image():
         
         # Configure ChromeOptions
         chrome_options = webdriver.ChromeOptions()
+        chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
         chrome_options.add_argument('--headless')
         chrome_options.add_argument('--no-sandbox')
         chrome_options.add_argument('--disable-dev-shm-usage')
@@ -33,7 +34,7 @@ def download_image():
         chrome_options.add_experimental_option("prefs", prefs)
 
         # Create WebDriver instance
-        driver = webdriver.Chrome(options=chrome_options)
+        driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chrome_options)
 
         # Navigate to the website
         driver.get('https://jardimprocedural.netlify.app')
