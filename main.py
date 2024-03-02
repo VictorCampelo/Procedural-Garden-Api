@@ -93,7 +93,9 @@ def start_download_image():
 def get_last_image():
     global last_image_path
     if last_image_path:
-        return send_file(last_image_path, mimetype='image/png', as_attachment=True)
+        with open(last_image_path, "rb") as img_file:
+            encoded_string = base64.b64encode(img_file.read()).decode('utf-8')
+            return jsonify({'image': encoded_string})
     else:
         return jsonify({'error': 'No image available.'}), 404
 
