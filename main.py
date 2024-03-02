@@ -100,5 +100,13 @@ def get_last_image():
     else:
         return jsonify({'error': 'No image available.'}), 404
 
+@app.route('/last_image_png', methods=['GET'])
+def get_last_image():
+    global last_image_path
+    if last_image_path:
+        return send_file(last_image_path, mimetype='image/png')
+    else:
+        return jsonify({'error': 'No image available.'}), 404
+
 if __name__ == '__main__':
     app.run()
