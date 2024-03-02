@@ -7,6 +7,7 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 from threading import Thread
 import base64
+import io
 
 app = Flask(__name__)
 
@@ -104,7 +105,11 @@ def get_last_image():
 def get_last_image_png():
     global last_image_path
     if last_image_path:
-        return send_file(last_image_path, mimetype='image/png')
+        # Lê o conteúdo do arquivo de imagem
+        with open(last_image_path, 'rb') as img_file:
+            img_bytes = img_file.read()
+        # Retorna o conteúdo da imagem como resposta
+        return send_file(io.BytesIO(img_bytes), mimetype='image/png')
     else:
         return jsonify({'error': 'No image available.'}), 404
 
