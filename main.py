@@ -156,7 +156,7 @@ def start_download_image():
     Thread(target=download_image).start()
     return jsonify({'message': 'Image download started.'}), 200
 
-@app.route('/download_image', methods=['GET'])
+@app.route('/download_n_image', methods=['GET'])
 def start_download_N_image():
     # Start the download process in a separate thread
     Thread(target=download_N_image).start()
