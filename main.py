@@ -146,35 +146,35 @@ def download_N_image():
     except Exception as e:
         print("Error downloading image:", e)
 
+def remove_old_files():
+    if not os.path.exists(DOWNLOAD_DIR):
+        os.makedirs(DOWNLOAD_DIR)
+        
+    for filename in os.listdir(DOWNLOAD_DIR):
+        file_path = os.path.join(DOWNLOAD_DIR, filename)
+        try:
+            if os.path.isfile(file_path):
+                os.unlink(file_path)
+        except Exception as e:
+            print("Error deleting {}: {}".format(file_path, e))
+
 @app.route('/')
 def hello_world():
     return 'Hello, World!'
 
 @app.route('/download_image', methods=['GET'])
 def start_download_image():
-    # Start the download process in a separate thread
-    for filename in os.listdir(DOWNLOAD_DIR):
-        file_path = os.path.join(DOWNLOAD_DIR, filename)
-        try:
-            if os.path.isfile(file_path):
-                os.unlink(file_path)
-        except Exception as e:
-            print("Error deleting {}: {}".format(file_path, e))
+    remove_old_files()
             
+    # Start the download process in a separate thread
     Thread(target=download_image).start()
     return jsonify({'message': 'Image download started.'}), 200
 
 @app.route('/download_n_image', methods=['GET'])
 def start_download_N_image():
-    # Start the download process in a separate thread
-    for filename in os.listdir(DOWNLOAD_DIR):
-        file_path = os.path.join(DOWNLOAD_DIR, filename)
-        try:
-            if os.path.isfile(file_path):
-                os.unlink(file_path)
-        except Exception as e:
-            print("Error deleting {}: {}".format(file_path, e))
+    remove_old_files()
             
+    # Start the download process in a separate thread
     Thread(target=download_N_image).start()
     return jsonify({'message': 'Image download started.'}), 200
 
