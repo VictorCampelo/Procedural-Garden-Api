@@ -153,12 +153,28 @@ def hello_world():
 @app.route('/download_image', methods=['GET'])
 def start_download_image():
     # Start the download process in a separate thread
+    for filename in os.listdir(DOWNLOAD_DIR):
+        file_path = os.path.join(DOWNLOAD_DIR, filename)
+        try:
+            if os.path.isfile(file_path):
+                os.unlink(file_path)
+        except Exception as e:
+            print("Error deleting {}: {}".format(file_path, e))
+            
     Thread(target=download_image).start()
     return jsonify({'message': 'Image download started.'}), 200
 
 @app.route('/download_n_image', methods=['GET'])
 def start_download_N_image():
     # Start the download process in a separate thread
+    for filename in os.listdir(DOWNLOAD_DIR):
+        file_path = os.path.join(DOWNLOAD_DIR, filename)
+        try:
+            if os.path.isfile(file_path):
+                os.unlink(file_path)
+        except Exception as e:
+            print("Error deleting {}: {}".format(file_path, e))
+            
     Thread(target=download_N_image).start()
     return jsonify({'message': 'Image download started.'}), 200
 
