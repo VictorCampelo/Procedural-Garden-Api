@@ -14,7 +14,9 @@ app = Flask(__name__)
 # Define the directory path of app.py
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DOWNLOAD_DIR = os.path.join(BASE_DIR, "downloads")
+DOWNLOAD_N_DIR = os.path.join(BASE_DIR, "n_images_downloads")
 last_image_path = None
+last_N_image_path = None
 
 def download_image():
     global last_image_path
@@ -82,10 +84,10 @@ def download_image():
         print("Error downloading image:", e)
 
 def download_N_image():
-    global last_image_path
+    global last_N_image_path
     try:
         # Ensure that the download directory exists
-        os.makedirs(DOWNLOAD_DIR, exist_ok=True)
+        os.makedirs(DOWNLOAD_N_DIR, exist_ok=True)
         
         # Configure ChromeOptions
         chrome_options = webdriver.ChromeOptions()
@@ -95,7 +97,7 @@ def download_N_image():
         chrome_options.add_argument('--disable-dev-shm-usage')
 
         # Set download directory preference
-        prefs = {"download.default_directory": DOWNLOAD_DIR}
+        prefs = {"download.default_directory": DOWNLOAD_N_DIR}
         chrome_options.add_experimental_option("prefs", prefs)
 
         # Create WebDriver instance
@@ -128,7 +130,7 @@ def download_N_image():
         time.sleep(5)
 
         # Get the list of files in the download directory
-        downloaded_files = os.listdir(DOWNLOAD_DIR)
+        downloaded_files = os.listdir(DOWNLOAD_N_DIR)
 
         # Filter the list to find the image file
         image_files = [file for file in downloaded_files if file.endswith('.png')]
@@ -139,19 +141,19 @@ def download_N_image():
             sorted_image_files = sorted(image_files)
 
             # Get the file name of the downloaded image
-            last_image_path = os.path.join(DOWNLOAD_DIR, sorted_image_files[-1])
+            last_N_image_path = os.path.join(DOWNLOAD_N_DIR, sorted_image_files[-1])
 
         # Close the browser
         driver.quit()
     except Exception as e:
         print("Error downloading image:", e)
 
-def remove_old_files():
-    if not os.path.exists(DOWNLOAD_DIR):
-        os.makedirs(DOWNLOAD_DIR)
+def remove_old_files(dirName):
+    if not os.path.exists(dirName):
+        os.makedirs(dirName)
         
-    for filename in os.listdir(DOWNLOAD_DIR):
-        file_path = os.path.join(DOWNLOAD_DIR, filename)
+    for filename in os.listdir(dirName):
+        file_path = os.path.join(dirName, filename)
         try:
             if os.path.isfile(file_path):
                 os.unlink(file_path)
@@ -164,7 +166,7 @@ def hello_world():
 
 @app.route('/download_image', methods=['GET'])
 def start_download_image():
-    remove_old_files()
+    remove_old_files(DOWNLOAD_DIR)
             
     # Start the download process in a separate thread
     Thread(target=download_image).start()
@@ -172,7 +174,7 @@ def start_download_image():
 
 @app.route('/download_n_image', methods=['GET'])
 def start_download_N_image():
-    remove_old_files()
+    remove_old_files(DOWNLOAD_N_DIR)
             
     # Start the download process in a separate thread
     Thread(target=download_N_image).start()
@@ -194,6 +196,18 @@ def get_last_image_png():
     if last_image_path:
         # Lê o conteúdo do arquivo de imagem
         with open(last_image_path, 'rb') as img_file:
+            img_bytes = img_file.read()
+        # Retorna o conteúdo da imagem como resposta
+        return send_file(io.BytesIO(img_bytes), mimetype='image/png')
+    else:
+        return jsonify({'error': 'No image available.'}), 404
+
+@app.route('/last_n_image_png', methods=['GET'])
+def get_last_N_image_png():
+    global last_N_image_path
+    if last_N_image_path:
+        # Lê o conteúdo do arquivo de imagem
+        with open(last_N_image_path, 'rb') as img_file:
             img_bytes = img_file.read()
         # Retorna o conteúdo da imagem como resposta
         return send_file(io.BytesIO(img_bytes), mimetype='image/png')
