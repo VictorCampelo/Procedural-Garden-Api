@@ -20,7 +20,13 @@ last_image_path = None
 last_N_image_path = None
 
 def get_last_file(directory):
-    list_of_files = glob.glob(directory + '/*')
+    if not os.path.isdir(directory):
+        raise ValueError("Directory does not exist.")
+    list_of_files = glob.glob(os.path.join(directory, '*'))
+
+    if not list_of_files:
+        return None
+
     latest_file = max(list_of_files, key=os.path.getmtime)
     return latest_file
 
