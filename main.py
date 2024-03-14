@@ -8,6 +8,7 @@ import time
 from threading import Thread
 import base64
 import io
+import glob
 
 app = Flask(__name__)
 
@@ -17,6 +18,11 @@ DOWNLOAD_DIR = os.path.join(BASE_DIR, "downloads")
 DOWNLOAD_N_DIR = os.path.join(BASE_DIR, "n_images_downloads")
 last_image_path = None
 last_N_image_path = None
+
+def get_last_file(directory):
+    list_of_files = glob.glob(directory + '/*')
+    latest_file = max(list_of_files, key=os.path.getmtime)
+    return latest_file
 
 def download_image():
     global last_image_path
@@ -208,6 +214,18 @@ def get_last_N_image_png():
     if last_N_image_path:
         # Lê o conteúdo do arquivo de imagem
         with open(last_N_image_path, 'rb') as img_file:
+            img_bytes = img_file.read()
+        # Retorna o conteúdo da imagem como resposta
+        return send_file(io.BytesIO(img_bytes), mimetype='image/png')
+    else:
+        return jsonify({'error': 'No image available.'}), 404
+
+@app.route('/last_n_image_png_fix', methods=['GET'])
+def get_last_N_image_png():
+    latest_N_image_path = get_last_file(DOWNLOAD_N_DIR)
+    if latest_N_image_path:
+        # Lê o conteúdo do arquivo de imagem
+        with open(latest_N_image_path, 'rb') as img_file:
             img_bytes = img_file.read()
         # Retorna o conteúdo da imagem como resposta
         return send_file(io.BytesIO(img_bytes), mimetype='image/png')
