@@ -221,7 +221,7 @@ def get_last_N_image_png():
         return jsonify({'error': 'No image available.'}), 404
 
 @app.route('/last_n_image_png_fix', methods=['GET'])
-def get_last_N_image_png():
+def get_last_N_image_png_fix():
     latest_N_image_path = get_last_file(DOWNLOAD_N_DIR)
     if latest_N_image_path:
         # Lê o conteúdo do arquivo de imagem
