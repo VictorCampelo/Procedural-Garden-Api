@@ -226,6 +226,18 @@ def get_last_N_image_png():
     else:
         return jsonify({'error': 'No image available.'}), 404
 
+@app.route('/last_image_png_fix', methods=['GET'])
+def get_last_N_image_png_fix():
+    latest_image_path = get_last_file(DOWNLOAD_DIR)
+    if latest_image_path:
+        # Lê o conteúdo do arquivo de imagem
+        with open(latest_image_path, 'rb') as img_file:
+            img_bytes = img_file.read()
+        # Retorna o conteúdo da imagem como resposta
+        return send_file(io.BytesIO(img_bytes), mimetype='image/png')
+    else:
+        return jsonify({'error': 'No image available.'}), 404
+
 @app.route('/last_n_image_png_fix', methods=['GET'])
 def get_last_N_image_png_fix():
     latest_N_image_path = get_last_file(DOWNLOAD_N_DIR)
