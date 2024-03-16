@@ -179,8 +179,6 @@ def hello_world():
 @app.route('/download_image', methods=['GET'])
 def start_download_image():
     remove_old_files(DOWNLOAD_DIR)
-            
-    # Start the download process in a separate thread
     Thread(target=download_image).start()
     return jsonify({'message': 'Image download started.'}), 200
 
