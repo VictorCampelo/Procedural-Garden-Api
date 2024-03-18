@@ -228,10 +228,12 @@ def get_last_N_image_png():
 def get_last_image_png_fix():
     latest_image_path = get_last_file(DOWNLOAD_DIR)
     if latest_image_path:
-        # Lê o conteúdo do arquivo de imagem
+        # Read the content of the image file
         with open(latest_image_path, 'rb') as img_file:
             img_bytes = img_file.read()
-        # Retorna o conteúdo da imagem como resposta
+        # Delete the file after sending it
+        os.remove(latest_image_path)
+        # Return the content of the image as response
         return send_file(io.BytesIO(img_bytes), mimetype='image/png')
     else:
         return jsonify({'error': 'No image available.'}), 404
@@ -240,10 +242,12 @@ def get_last_image_png_fix():
 def get_last_N_image_png_fix():
     latest_N_image_path = get_last_file(DOWNLOAD_N_DIR)
     if latest_N_image_path:
-        # Lê o conteúdo do arquivo de imagem
+        # Read the content of the image file
         with open(latest_N_image_path, 'rb') as img_file:
             img_bytes = img_file.read()
-        # Retorna o conteúdo da imagem como resposta
+        # Delete the file after sending it
+        os.remove(latest_N_image_path)
+        # Return the content of the image as response
         return send_file(io.BytesIO(img_bytes), mimetype='image/png')
     else:
         return jsonify({'error': 'No image available.'}), 404
